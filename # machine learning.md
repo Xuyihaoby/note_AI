@@ -280,3 +280,103 @@ function [jVal, gradient] = codtFunction(theta)
 ![image-20200407183417597](# machine learning.assets/image-20200407183417597.png)
 
 ***Cost Function(classification)***
+$$
+J(\Theta)=-\frac{1}{m}[\sum^m_{i=1}\sum^K_{k=1}y_k^{(i)}log(h_{\Theta}(x^{(i)}))_k+(1-y_k^{(i)})log(1-(h_{\Theta}(x^{(i)}))_k)]+\frac{\lambda}{2m}\sum_{l=1}^{L-1}\sum_{i=1}^{s_l}\sum_{j=1}^{s_{l+1}}(\Theta-{ji}^{(l)})^2
+$$
+*gradient computation*
+$$
+\frac{\partial}{\partial \Theta_{ji}^{(l)}}J(\Theta)
+$$
+*Forward propagation(前向传播算法)*
+
+![image-20200410131939002](# machine learning.assets/image-20200410131939002.png)
+
+*Backpropagation algorithm*
+
+Intuition:$\delta_j^{(l)}=$"*error*" of node j in layer *l*
+
+*For each out put unit (Layer L=4)*
+$$
+\delta_j^{(4)}=a_j^{(4)}-y_j\\
+\delta^{(3)}=(\Theta^{(3)})^T\delta^{(4)}.*g'(z^{(3)})\\
+\delta^{(2)}=(\Theta^{(2)})^T\delta^{(3)}.*g'(z^{(2)})\\
+especially(\quad g'(z^{(i)})=a^{(i)}.*(1-a^{(i)})\quad)\\
+ignore \quad \lambda;if\;\lambda=0(即没有正则项)
+$$
+
+$$
+\frac{\partial}{\partial \theta_{ji}^l}J(\Theta)=a_i^{(l)}\delta_j^{(l+1)}
+$$
+
+
+
+反向传播算法的步骤
+
+![image-20200410133751475](# machine learning.assets/image-20200410133751475.png)
+
+*Forward propagation*
+
+![image-20200410162227029](# machine learning.assets/image-20200410162227029.png)
+
+*Gradient checking*(梯度检验)
+
+梯度下降算法本身就会有许多bug，导致最终算出来的结果和实际会有许多的偏差，所以需要提前先进行相关的检验
+$$
+\frac{\partial}{\partial\theta_i}J(\theta)\approx\frac{J(\theta_1,\theta_2,...,\theta_i+\epsilon)-J(\theta_1,\theta_2,...\theta_i-\epsilon)}{2\epsilon}
+$$
+
+```octave
+for i = 1:n,
+	thetaPlus = theta;
+	thetaPlus(i) = thetaPlus(i) + EPSILON;
+	thetaMinus = theta;
+	thetaMinus(i) = thetaMinus(i) - EPSILON;
+	gradApprox(i) = (J(thetaPlus) - J(thetaMinus))/(2*EPSILON);
+end;
+```
+
+==*check that gradApprox $\approx$ DVec*==
+
+***Implementation Note:***
+
+- Implemenr backprop to compute DVec(unrooled D^(1), D^(2), D^(3))
+- Implemrnt numerical gradient check to compute gradApprox
+- Make sure they give similar values
+- *==Turn off gradient checking==*. Using backprop code for learning 
+
+***Random initialization***
+
+```octave
+optTheta = fminunc(@costFunction, initialTheta, options)
+```
+
+***注意！！！！***
+
+不能够将初始化的参数都设置为零，否则会导致每一层的参数权重都是一样的，最后输出的神经元也都一样
+
+Initialize each $\Theta_{ij}^{(l)}$ to a random value in [$-\epsilon, \epsilon$]  $\epsilon \approx 10^{-4}$
+
+*for example* 
+
+```octave
+Theta1 = rand(10, 11)*(2*INIT_EPSILON) - INIT_EPSILON;
+Theta2 = rand(1, 11)*(2*INIT_EPSILON) - INIT_EPSILON;
+```
+
+***putting it together***
+
+*training a neural network*
+
+1. Randomly initialize weights(初始化参数权重)
+
+2. Implement forward propagation to get $h_\Theta(x^{(i)})$ for any $x^{(i)}$(利用前向传播算法，将每一层的结果都算出来)
+
+3. Implement code to compute cost function $J(\Theta)$（编程去实现损失函数）
+
+4. Implement backprop to compute partial derivatives $\frac{\partial}{\partial\Theta_{jk}^{(l)}}J(\Theta)$（再利用反向传播算法去实现每一个权重的求导）
+
+5. Use gradient checking to compare $\frac{\partial}{\partial\Theta_{jk}^{(l)}}J(\Theta)$ computed using backpropagation vs. using numerical estimate of gradient of $J(\Theta)$（将每个逻辑单元的算出来的偏导和自己编程的导数相比较之后检验是都有问题）
+
+   ***Then disable gradient checking code***（第一遍检测完成之后就必须得把它关闭，否则电脑会带不动）
+
+6. Use gradient descent or advanced optimization method with backpropagation to try to minimize $J(\Theta)$ as a function  of parameters $\Theta$
