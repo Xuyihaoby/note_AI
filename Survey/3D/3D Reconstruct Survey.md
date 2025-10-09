@@ -839,7 +839,17 @@ CUT3R是流式3D重建模型，其以图像流为输入且无需相机信息，�
 
 #### Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data
 
+主要聚焦于如何利用数据集： 第一阶段：训练有标签数据集阶段；为了能够让多个数据集在统一的尺度下进行训练affine-invariant loss， 训练过程中使用DINOv2的权重进行初始化 
+$$
+\mathcal{L}_l = \frac{1}{HW} \sum_{i=1}^{HW} \rho(d_i^*, d_i)\\ \hat{d}_i = \frac{d_i - t(d)}{s(d)} \\ t(d) = \text{median}(d), \quad s(d) = \frac{1}{HW} \sum_{i=1}^{HW} |d_i - t(d)|
+$$
+第二阶段：训练收集到的无标签数据，如果用训练好的教师模型进行预测伪标签并且使用重新初始化的权重将所有数据集一起放进去训练，效果并不理想。在训练期间向未标记的图像注入强烈的扰动（color distorting Gaussian blur 以及cut mix）。 
 
+第三阶段语义信息的协助： 作者首先使用了RAM+GroundingDINO+HQ-SAM对大量数据集进行语义标注（得到了4k类信息），利用DINOv2强大的语义表征能力，在特征图上利用余弦相似度进行监督。 
+$$
+\mathcal{L}_{feat} = 1 - \frac{1}{HW} \sum_{i=1}^{HW} \cos(f_i, f'_i),
+$$
+当相似度相差太大的情况下便不再强迫模型继续约束。
 
 #### Depth Anything V2
 
