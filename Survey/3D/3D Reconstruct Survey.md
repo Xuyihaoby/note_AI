@@ -885,7 +885,9 @@ MoGe-2 在 MoGe 的基础上，进一步解决了单目几何估计中缺乏 met
 
 ## Tracker
 
-SpatialTrackerV2: 3D Point Tracking Made Easy（tracker）
+#### SpatialTrackerV2: 3D Point Tracking Made Easy
+
+该方法将3D点跟踪任务分解为视频深度估计、相机运动估计和目标运动估计三大模块，通过显式分离相机自运动与场景中目标的独立运动，提高动态场景下的跟踪鲁棒性。前端利用改进的DepthAnythingV2模型进行视频深度估计，引入交替注意力时间编码器以兼顾帧内细节与帧间一致性，并通过可学习的Pose/Scale令牌实现深度与位姿的尺度对齐；随后通过可微位姿头预测相机参数，生成由相机运动诱导的初始3D轨迹。后端采用SyncFormer与可微Bundle Adjustment联合优化3D轨迹与相机位姿。SyncFormer为双分支结构，分别在2D与3D空间中建模点的时空关联，通过跨注意力交互保持轨迹一致性，同时估计点的可见性与动态概率。每次迭代后利用加权Procrustes和DirectBA优化相机位姿，形成闭环更新。训练阶段采用异质数据联合训练策略，结合含完整标注的RGB-D数据、仅深度数据及无标注视频，实现前端与后端的分阶段预训练与端到端联合优化，从而在跨场景视频中获得高精度、尺度一致的像素级3D点轨迹。
 
 ## Matching
 
