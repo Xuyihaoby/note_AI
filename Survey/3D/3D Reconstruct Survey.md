@@ -882,6 +882,14 @@ $$
 
 其中$(\alpha,\beta,\gamma)=(0.1,1.0,0.1)$。
 
+#### UniK3D: Universal Camera Monocular 3D Estimation
+
+对 UniDepth 的泛化扩展，旨在构建可适配任意相机模型的通用三维场景估计框架。其核心思想是将相机参数与场景几何结构解耦，避免依赖针孔或等矩形等特定相机假设。UniK3D 采用基于球坐标的光线表示，将相机方向编码为极角与方位角张量 $C = \theta | \phi$，并通过球谐函数逆变换从系数张量 $H$ 重建角度场，从而以紧凑形式捕捉光线的空间分布。
+
+针对数据集偏向小视场角的问题，模型提出非对称角度损失（Asymmetric Angular Loss），利用分位数回归机制在训练中强调大角度区域的学习，从而提升对广角场景的表示能力。
+
+网络结构由编码器（Encoder）、角度模块（Angular Module）与径向模块（Radial Module）组成：编码器提取密集特征与类别令牌；角度模块从令牌中预测球谐系数及视场定义域，重建球面光线场；径向模块以此为条件预测半径与置信度，并通过球坐标到笛卡尔坐标变换生成三维点云。UniK3D 通过静态相机光线编码与课程学习策略强化外部约束，使模型在训练初期依赖真实相机参数、后期逐步过渡到预测参数，并在梯度层面隔离相机分支，防止特征混淆。
+
 ### Multi Output
 
 #### VGGT: Visual Geometry Grounded Transformer
@@ -982,7 +990,7 @@ COD-VAE 提出了一种将 3D 形状高效压缩为紧凑 1D 潜在向量集的�
 
 ==============================================
 
-UniK3D: Universal Camera Monocular 3D Estimation
+
 
 Visual Geometry Grounded Deep Structure From Motion
 
