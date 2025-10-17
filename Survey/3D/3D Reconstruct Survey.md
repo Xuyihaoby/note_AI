@@ -1001,6 +1001,51 @@ COD-VAE 提出了一种将 3D 形状高效压缩为紧凑 1D 潜在向量集的�
 
 训练采用二元交叉熵与KL散度联合损失，并通过对不确定性预测与重建误差的监督，使令牌剪枝过程可靠。整体采用两阶段训练：先训练不含潜在模块的自编码器，再在冻结前端的基础上优化KL块和潜在解码器，提升压缩与重建能力。该方法在保证重建精度的前提下显著提升了压缩率与生成速度。
 
+#### Visual Geometry Grounded Deep Structure From Motion
+
+VGGSfM 的目标是通过端到端可微的点追踪网络实现结构从运动（SfM），摆脱传统基于几何算法（如特征匹配 + RANSAC + BA）的非端到端流程。核心思想是在深度网络中显式建模点追踪、相机估计与三角测量，使得整个重建过程可被统一地优化。
+
+整体函数形式为：
+$$
+ f_{\theta}(\mathcal{I}) = (\mathcal{P}, X)
+$$
+ 即网络 $f_\theta$ 接收图像集合 $\mathcal{I}$，直接输出相机参数 $\mathcal{P}$ 与场景点云 $X$，并通过最小化重投影与几何监督的损失 $\mathcal{L}$ 学习参数 $\theta$。VGGSfM 将传统 SfM 的四个关键阶段整合为全可微模块：
+
+$$
+\begin{aligned}
+ \mathcal{T} &= \mathbb{T}(\mathcal{I}) \quad &\text{(点追踪)}\\
+ \hat{\mathcal{P}} &= \mathfrak{T}*{\mathcal{P}}(\mathcal{I}, \mathcal{T}) \quad &\text{(相机初始化)}\\
+ \hat{X} &= \mathfrak{T}*{X}(\mathcal{T}, \hat{\mathcal{P}}) \quad &\text{(三角测量)}\\
+ (\mathcal{P}, X) &= \text{BA}(\mathcal{T}, \hat{\mathcal{P}}, \hat{X}) \quad &\text{(光束平差)}
+ \end{aligned}
+$$
+点追踪器 $\mathbb{T}$
+
+VGGSfM 引入前馈式多帧点追踪网络：输入多帧图像，直接输出跨帧一致的2D轨迹集合 $\mathcal{T}$。Cost-volume金字塔：在多尺度上构建点到特征的相关体，展平后形成令牌序列 $V \in \mathbb{R}^{N_T \times N_I \times C}$。Transformer跟踪：令牌经过多层自注意力Transformer，输出每个点在各帧的2D位置 $y_i^j$与可见性$v_i^j$。置信度预测：通过Aleatoric不确定性建模预测方差 $\sigma_i^j$，损失为高斯负对数似然。粗到细估计：先在全图上粗匹配，再在局部补丁中细化，获得亚像素精度。
+
+相机初始化器 $\mathfrak{T}_{\mathcal{P}}$
+
+该模块利用深度Transformer在全局特征与轨迹特征之间执行交叉注意力，联合估计所有相机位姿。输入包括图像特征$\phi(I_i)$ 与轨迹描述符 $d^{\mathcal{P}}(y_i^j)$；将轨迹对输入8点算法估计初步相机作为几何先验，并嵌入Transformer更新多次以细化预测；使用批量8点算法近似RANSAC过滤噪声匹配，确保稳健性。
+
+三角测量器 $\mathfrak{T}_{X}$
+
+给定初始相机 $\hat{\mathcal{P}}$ 与轨迹 $\mathcal{T}$，预测初步点云$\bar{X}$并细化为最终 $\hat{X}$。初步点由闭式DLT三角测量获得；将相机光线与最近点距离、位置嵌入为特征；使用Transformer融合轨迹与几何特征，回归每个3D点的坐标。
+
+光束平差（BA）
+
+采用可微Levenberg–Marquardt优化器，最小化重投影误差：
+$$
+\mathcal{L}_{BA} = \sum_{i,j} v_i^j | P_i(x^j) - y_i^j |
+$$
+ 支持对低置信度或几何不一致的点进行过滤（如低可见性、方差过大、Sampson误差超阈值等）。
+
+总体损失由点云误差、相机误差与轨迹似然构成：
+$$
+\mathcal{L} = \sum_j |x^{*j} - x^j|\epsilon + |x^{j} - \hat{x}^j|\epsilon + \sum_i e_{\mathcal{P}}(P_i^*, P_i) - \sum_{i,j} \log \mathcal{N}(y_i^{j*}|y_i^j, \sigma_i^j)
+$$
+
+
+
 ### 4D
 
 #### PhysGen3D: Crafting a Miniature Interactive World from a Single Image
@@ -1013,7 +1058,7 @@ COD-VAE 提出了一种将 3D 形状高效压缩为紧凑 1D 潜在向量集的�
 
 
 
-Visual Geometry Grounded Deep Structure From Motion
+
 
 A Point Set Generation Network for 3D Object Reconstruction from a Single Image
 
