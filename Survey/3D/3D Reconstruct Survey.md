@@ -947,6 +947,10 @@ MoGe-2 在 MoGe 的基础上，进一步解决了单目几何估计中缺乏 met
 
 给定同一场景的两张不同视角图像 $x_1$ 与 $x_2$，将 $x_1$ 划分为 $ N $ 个非重叠补丁，并随机掩蔽其中的补丁。模型需利用剩下的集合与另一张图视图的补丁集合重建被掩蔽部分。
 
+#### CroCo v2: Improved Cross-view Completion Pre-training for Stereo Matching and Optical Flow
+
+主要解决自监督预训练方法在在立体匹配或光流等密集几何视觉任务中表现不好。基于croco进行改进，探索了三种改进途径：大规模收集合适的真实世界图像对；相对位置嵌入，提升视觉 Transformer 性能；扩展基于视觉 Transformer 的架构。
+
 
 ## Other 
 
