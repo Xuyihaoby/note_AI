@@ -835,13 +835,7 @@ CUT3R是流式3D重建模型，其以图像流为输入且无需相机信息，�
 
 #### Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data
 
-主要聚焦于如何利用数据集： 第一阶段：训练有标签数据集阶段；为了能够让多个数据集在统一的尺度下进行训练affine-invariant loss， 训练过程中使用DINOv2的权重进行初始化 
-$$
-\mathcal{L}_l = \frac{1}{HW} \sum_{i=1}^{HW} \rho(d_i^*, d_i)\\ \hat{d}_i = \frac{d_i - t(d)}{s(d)} \\ t(d) = \text{median}(d), \quad s(d) = \frac{1}{HW} \sum_{i=1}^{HW} |d_i - t(d)|
-$$
-第二阶段：训练收集到的无标签数据，如果用训练好的教师模型进行预测伪标签并且使用重新初始化的权重将所有数据集一起放进去训练，效果并不理想。在训练期间向未标记的图像注入强烈的扰动（color distorting Gaussian blur 以及cut mix）。 
-
-第三阶段语义信息的协助： 作者首先使用了RAM+GroundingDINO+HQ-SAM对大量数据集进行语义标注（得到了4k类信息），利用DINOv2强大的语义表征能力，在特征图上利用余弦相似度进行监督。 
+主要聚焦于如何利用数据集： 第一阶段：训练有标签数据集阶段；为了能够让多个数据集在统一的尺度下进行训练affine-invariant loss， 训练过程中使用DINOv2的权重进行初始化 。第二阶段：训练收集到的无标签数据，如果用训练好的教师模型进行预测伪标签并且使用重新初始化的权重将所有数据集一起放进去训练，效果并不理想。在训练期间向未标记的图像注入强烈的扰动（color distorting Gaussian blur 以及cut mix）。 第三阶段语义信息的协助： 首先使用RAM+GroundingDINO+HQ-SAM对大量数据集进行语义标注（得到了4k类信息），利用DINOv2强大的语义表征能力，在特征图上利用余弦相似度进行监督。 
 $$
 \mathcal{L}_{feat} = 1 - \frac{1}{HW} \sum_{i=1}^{HW} \cos(f_i, f'_i),
 $$
@@ -869,12 +863,7 @@ UniDepth 旨在构建一个无需相机内参即可进行单目度量深度估�
 
 #### UniDepthV2: Universal Monocular Metric Depth Estimation Made Simpler
 
-改进版 UniDepth 在原始框架基础上优化了网络结构与损失设计，引入边缘引导归一化损失（Edge-Guided Normalized Loss）以提升深度预测的局部精度。该损失聚焦于RGB梯度前5%的高对比度区域，通过局部归一化对比预测与真值深度，强调形状一致性而非绝对值，从而增强对真实几何边缘的感知。网络采用ViT编码器生成多尺度特征，并利用相机模块提取针孔相机参数，经正弦编码形成相机嵌入向量，以此调制FPN式解码器输出对数深度。优化部分在重构的MSE损失基础上，引入深度一致性约束、边缘归一化项与不确定性监督，最终综合损失定义为
-$$
-\mathcal{L}=\mathcal{L}*{\lambda MSE}+\alpha\mathcal{L}*{con}+\beta\mathcal{L}*{EG-SSI}+\gamma\mathcal{L}*{L1},
-$$
-
-其中$(\alpha,\beta,\gamma)=(0.1,1.0,0.1)$。
+改进版 UniDepth 在原始框架基础上优化了网络结构与损失设计，引入边缘引导归一化损失（Edge-Guided Normalized Loss）以提升深度预测的局部精度。该损失聚焦于RGB梯度前5%的高对比度区域，通过局部归一化对比预测与真值深度，强调形状一致性而非绝对值，从而增强对真实几何边缘的感知。网络采用ViT编码器生成多尺度特征，并利用相机模块提取针孔相机参数，经正弦编码形成相机嵌入向量，以此调制FPN式解码器输出对数深度。优化部分在重构的MSE损失基础上，引入深度一致性约束、边缘归一化项与不确定性监督。
 
 #### UniK3D: Universal Camera Monocular 3D Estimation
 
@@ -923,7 +912,15 @@ MoGe-2 在 MoGe 的基础上，进一步解决了单目几何估计中缺乏 met
 
 相比 MoGe，MoGe-2 通过解耦尺度学习和真实数据精修，既保持了相对几何的精度，又补上了 metric 尺度与细粒度结构的短板，实现更高质量的单目 3D 几何重建。
 
+### Pose
 
+#### PoseDiffusion: Solving Pose Estimation via Diffusion-aided Bundle Adjustment
+
+PoseDiffusion通过扩散模型实现扩散辅助光束平差（Diffusion-aided Bundle Adjustment），在给定图像集$I$时，直接对相机参数的条件分布$p(x|I)$进行建模。首先在包含真实图像及其相机参数的大规模训练集上训练一个条件扩散去噪网络$D_θ$，使其能够在去噪过程中逐步恢复潜在的真实相机位姿。去噪器采用基于Transformer的结构，以噪声相机参数、扩散时间步及图像特征（由预训练DINO ViT提取）为输入，预测去噪后的相机参数。训练通过最小化去噪误差实现，使模型学习到在不同扩散阶段下的条件分布。在推理阶段，通过对$p_θ(x|I)$的采样获得相机参数估计，相当于完成光束平差任务。由于该分布在最优位姿附近近似为狄拉克分布，从中采样的结果即可作为有效的相机解。
+
+为进一步提高几何精度，PoseDiffusion引入几何引导采样（Geometry-guided Sampling）。通过两视图几何约束（如极线约束）对采样过程进行引导，使估计的相机参数满足图像间的几何一致性。具体地，模型利用图像对之间的2D匹配点，通过Sampson极线误差评估相机兼容性，并在每个采样迭代中通过梯度引导调整去噪器输出，使Sampson误差最小化，从而实现几何一致的位姿估计。
+
+相机参数包括焦距、旋转和平移，旋转以四元数表示，焦距采用指数参数化以保证正值。为避免因SfM重建导致的场景特定坐标歧义，PoseDiffusion在输入阶段对训练数据进行**坐标规范化**：将所有相机位姿转换为相对于随机枢轴相机的相对位姿，并在特征中显式标识该枢轴相机，同时对平移尺度进行归一化。这种规范化策略使模型学习到与具体场景无关的相对几何关系，从而实现稳健的跨场景相机估计。
 
 ## Tracker
 
@@ -1008,9 +1005,8 @@ COD-VAE 提出了一种将 3D 形状高效压缩为紧凑 1D 潜在向量集的�
 
 #### Visual Geometry Grounded Deep Structure From Motion
 
-VGGSfM 的目标是通过端到端可微的点追踪网络实现结构从运动（SfM），摆脱传统基于几何算法（如特征匹配 + RANSAC + BA）的非端到端流程。核心思想是在深度网络中显式建模点追踪、相机估计与三角测量，使得整个重建过程可被统一地优化。
+VGGSfM 的目标是通过端到端可微的点追踪网络实现结构从运动（SfM），摆脱传统基于几何算法（如特征匹配 + RANSAC + BA）的非端到端流程。核心思想是在深度网络中显式建模点追踪、相机估计与三角测量，使得整个重建过程可被统一地优化。整体函数形式为：
 
-整体函数形式为：
 $$
  f_{\theta}(\mathcal{I}) = (\mathcal{P}, X)
 $$
@@ -1024,30 +1020,20 @@ $$
  (\mathcal{P}, X) &= \text{BA}(\mathcal{T}, \hat{\mathcal{P}}, \hat{X}) \quad &\text{(光束平差)}
  \end{aligned}
 $$
-点追踪器 $\mathbb{T}$
+点追踪器 $\mathbb{T}$：VGGSfM 引入前馈式多帧点追踪网络：输入多帧图像，直接输出跨帧一致的2D轨迹集合 $\mathcal{T}$。Cost-volume金字塔：在多尺度上构建点到特征的相关体，展平后形成令牌序列 $V \in \mathbb{R}^{N_T \times N_I \times C}$。Transformer跟踪：令牌经过多层自注意力Transformer，输出每个点在各帧的2D位置 $y_i^j$与可见性$v_i^j$。置信度预测：通过Aleatoric不确定性建模预测方差 $\sigma_i^j$，损失为高斯负对数似然。粗到细估计：先在全图上粗匹配，再在局部补丁中细化，获得亚像素精度。
 
-VGGSfM 引入前馈式多帧点追踪网络：输入多帧图像，直接输出跨帧一致的2D轨迹集合 $\mathcal{T}$。Cost-volume金字塔：在多尺度上构建点到特征的相关体，展平后形成令牌序列 $V \in \mathbb{R}^{N_T \times N_I \times C}$。Transformer跟踪：令牌经过多层自注意力Transformer，输出每个点在各帧的2D位置 $y_i^j$与可见性$v_i^j$。置信度预测：通过Aleatoric不确定性建模预测方差 $\sigma_i^j$，损失为高斯负对数似然。粗到细估计：先在全图上粗匹配，再在局部补丁中细化，获得亚像素精度。
+相机初始化器 $\mathfrak{T}_{\mathcal{P}}$：该模块利用深度Transformer在全局特征与轨迹特征之间执行交叉注意力，联合估计所有相机位姿。输入包括图像特征$\phi(I_i)$ 与轨迹描述符 $d^{\mathcal{P}}(y_i^j)$；将轨迹对输入8点算法估计初步相机作为几何先验，并嵌入Transformer更新多次以细化预测；使用批量8点算法近似RANSAC过滤噪声匹配，确保稳健性。
 
-相机初始化器 $\mathfrak{T}_{\mathcal{P}}$
+三角测量器 $\mathfrak{T}_{X}$：给定初始相机 $\hat{\mathcal{P}}$ 与轨迹 $\mathcal{T}$，预测初步点云$\bar{X}$并细化为最终 $\hat{X}$。初步点由闭式DLT三角测量获得；将相机光线与最近点距离、位置嵌入为特征；使用Transformer融合轨迹与几何特征，回归每个3D点的坐标。
 
-该模块利用深度Transformer在全局特征与轨迹特征之间执行交叉注意力，联合估计所有相机位姿。输入包括图像特征$\phi(I_i)$ 与轨迹描述符 $d^{\mathcal{P}}(y_i^j)$；将轨迹对输入8点算法估计初步相机作为几何先验，并嵌入Transformer更新多次以细化预测；使用批量8点算法近似RANSAC过滤噪声匹配，确保稳健性。
+光束平差（BA）：采用可微Levenberg–Marquardt优化器，最小化重投影误差：
 
-三角测量器 $\mathfrak{T}_{X}$
-
-给定初始相机 $\hat{\mathcal{P}}$ 与轨迹 $\mathcal{T}$，预测初步点云$\bar{X}$并细化为最终 $\hat{X}$。初步点由闭式DLT三角测量获得；将相机光线与最近点距离、位置嵌入为特征；使用Transformer融合轨迹与几何特征，回归每个3D点的坐标。
-
-光束平差（BA）
-
-采用可微Levenberg–Marquardt优化器，最小化重投影误差：
 $$
 \mathcal{L}_{BA} = \sum_{i,j} v_i^j | P_i(x^j) - y_i^j |
 $$
- 支持对低置信度或几何不一致的点进行过滤（如低可见性、方差过大、Sampson误差超阈值等）。
+支持对低置信度或几何不一致的点进行过滤（如低可见性、方差过大、Sampson误差超阈值等）。
 
-总体损失由点云误差、相机误差与轨迹似然构成：
-$$
-\mathcal{L} = \sum_j |x^{*j} - x^j|\epsilon + |x^{j} - \hat{x}^j|\epsilon + \sum_i e_{\mathcal{P}}(P_i^*, P_i) - \sum_{i,j} \log \mathcal{N}(y_i^{j*}|y_i^j, \sigma_i^j)
-$$
+总体损失由点云误差、相机误差与轨迹似然构成。
 
 
 
@@ -1058,8 +1044,6 @@ $$
 该方法将单张图像转化为交互式、以相机为中心的微型世界，通过构建 3D 世界、动力学模拟和物理渲染生成符合物理规律的逼真视频。借助预训练视觉基础模型，用 GPT-4o 和 Grounded-SAM 分割前景物体，InstantMesh 结合 Zero123++ 生成 3D 网格，迭代修复处理遮挡物体；Dust3r 估计深度生成背景点云与碰撞器，LaMA 修复模型填充背景。多阶段对齐策略确定物体在相机坐标系的姿态和尺度，精对齐阶段通过可微渲染优化损失；Mitsuba3 逆渲染和 DiffusionLight 优化材料与光照参数，GPT-4o 查询物理参数并估计尺度因子。基于 MPM 的 Taichi Elements 模拟器将 3D 资产转换为粒子表示，应用尺度因子调整物理参数，按用户输入设置初始速度和特殊效果。模拟后通过运动插值变形网格，利用优化后的材料在 Mitsuba3 中渲染，构建背景阴影捕捉表面，双通阴影映射提取效果，合成前景、阴影与修复背景生成最终视频。
 
 #### 
-
-==============================================
 
 
 
