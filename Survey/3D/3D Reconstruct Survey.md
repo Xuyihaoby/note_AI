@@ -444,13 +444,10 @@ feed-forward类nerf稀疏视图3D重建工作，作者出发点在于MVS与NVS�
 
 利用MVSplat的思想，使用CNN和Swin Transformer提取多视角特征，通过cost volume估计深度，结合相机位姿得到初始高斯位置 \(\mu\)，其余参数随机初始化。
 
-Cascade Gaussian Adaptor (CGA)
+Cascade Gaussian Adaptor (CGA)：计算score map \(\mathcal{R} = \Psi(\mathcal{F})\)，用于评估区域重要性。引入超参网络 \(\mathcal{H}\)，输入每一阶段高斯相关的信息输出阈值 \(\tau_{high}^{(k)}, \tau_{low}^{(k)}\)，指导高斯的分裂与合并：高分区域分裂高斯（通过SplitNet生成新高斯）；低分区域合并高斯（缩放透明度与尺寸）。
 
-计算score map \(\mathcal{R} = \Psi(\mathcal{F})\)，用于评估区域重要性。引入超参网络 \(\mathcal{H}\)，输入每一阶段高斯相关的信息输出阈值 \(\tau_{high}^{(k)}, \tau_{low}^{(k)}\)，指导高斯的分裂与合并：高分区域分裂高斯（通过SplitNet生成新高斯）；低分区域合并高斯（缩放透明度与尺寸）。
+Iterative Gaussian Refinement (IGR)  ：对高斯进行微调，通过与多视角特征交互更新参数：
 
-Iterative Gaussian Refinement (IGR)  
-
-对高斯进行微调，通过与多视角特征交互更新参数：
 \[
 \mathcal{Q}_b = \Phi_{ref}\left(\sum_{i=1}^{N} \alpha_i \cdot \text{DA}(\mathcal{Q}_{b-1}, F_i, P(\mu^{(b)}, C_i))\right)
 \]
@@ -902,7 +899,9 @@ S_{ji}=S_{j,\text{loop}}\circ S_{i,\text{loop}}^{-1}
 $$
  最终，构建全局 Sim(3) 李群优化问题，联合最小化相邻块约束与回环约束。
 
+#### FastVGGT: Training-Free Acceleration of Visual Geometry Transformer
 
+在FastVGGT中，为了加速推理与训练并减少冗余计算，引入了基于ToMeSD的Token融合策略。方法将Token分为目标Token、源Token与显著Token三类：目标Token作为代表性锚点参与全局注意力计算，源Token则根据特征相似度融合到最相似的目标Token中以减少计算量，而显著Token用于保持跨视图几何一致性，直接参与注意力计算以保证重建稳定性。具体流程中，第一帧的所有Token被指定为目标Token以建立全局参考；随后在各帧中固定比例地选取显著Token保留精细细节，其余Token则通过基于区域的随机采样在目标与源Token间均匀分配。融合阶段，源Token按余弦相似度与目标Token匹配并进行平均融合，以压缩注意力输入；在计算完成后，通过复制融合特征恢复至原始序列长度，实现“解融合”，保证解码阶段的密集预测精度。该机制在显著降低计算复杂度的同时，兼顾了几何一致性与重建质量。
 
 #### MoGe: Unlocking Accurate Monocular Geometry Estimation for Open-Domain Images with Optimal Training Supervision
 
