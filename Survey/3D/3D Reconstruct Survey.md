@@ -828,7 +828,13 @@ CUT3R是流式3D重建模型，其以图像流为输入且无需相机信息，�
 
 ### depth
 
-#### Relative Depth
+#### Affine-Invariant Depth
+
+#### Learning to Recover 3D Scene Shape from a Single Image
+
+该方法采用两阶段流程，由深度预测模块（DPM）和点云模块（PCM）组成。DPM从单张RGB图像预测深度图，但其结果存在未知的尺度和偏移；PCM以此生成的点云为输入，通过学习恢复深度偏移与焦距，从而修正3D几何结构。点云由针孔相机模型反投影获得，焦距影响点云的横向尺度，深度偏移则导致非均匀形变。为估计这两个参数，采用PVCNN对扰动点云进行学习，通过合成具有随机偏移与焦距扰动的训练样本进行监督。推理时，PCM利用DPM预测的深度生成初始点云，并输出修正后的深度和焦距比例因子，实现自适应几何校正。
+
+在深度预测阶段，提出图像级归一化回归（ILNR）损失以缓解不同数据集间的尺度差异，并引入成对法线回归（PWN）损失以增强局部几何一致性。ILNR结合tanh归一化与修剪的Z-score，使网络在仿射不变空间中学习深度；PWN通过对成对点法线关系的约束，提升平面与边缘区域的结构保真度。同时结合多尺度梯度损失（MSG）改善细节还原。综合损失由ILNR、PWN与MSG组成，用于稳定且几何一致的深度学习。
 
 #### Depth Anything: Unleashing the Power of Large-Scale Unlabeled Data
 
