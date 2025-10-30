@@ -23,21 +23,11 @@ $$
 
 #### Mip-NeRF 360: Unbounded Anti-Aliased Neural Radiance Fields
 
-针对nerf在进行无边界场景的重建困难：
-
-1、利用种基于视差（与距离成反比）的采样机制，将无边界的3D场景参数化为有边界的场景
-
-2、使用在线蒸馏的思想，coarse mlp只需要预测密度权重，并且利用所提出的损失函数加以限制$L_{prop}$进行约束，使其预测尽量接近nerfMLP
-
-3、将weight约束成一种单峰分布的形式，以缓解floater的问题
+针对nerf在进行无边界场景的重建困难：利用种基于视差（与距离成反比）的采样机制，将无边界的3D场景参数化为有边界的场景；使用在线蒸馏的思想，coarse mlp只需要预测密度权重，并且利用所提出的损失函数加以限制$L_{prop}$进行约束，使其预测尽量接近nerfMLP；将weight约束成一种单峰分布的形式，以缓解floater的问题
 
 #### Volume Rendering of Neural Implicit Surfaces
 
-想要将隐式神经场显式化（想要进行表面重建）
-
-1、改进密度的表示方法，并不依靠神经辐射场直接输出密度信息，而是预测符号距离场并通过laplace累积分布的形式给出密度信息；
-
-2、优化采样方式，在采样点个数与laplace分布的$\beta$中寻求平衡。
+想要将隐式神经场显式化（想要进行表面重建）改进密度的表示方法，并不依靠神经辐射场直接输出密度信息，而是预测符号距离场并通过laplace累积分布的形式给出密度信息；优化采样方式，在采样点个数与laplace分布的$\beta$中寻求平衡。
 
 #### NeuS: Learning Neural Implicit Surfaces by Volume Rendering for Multi-view Reconstruction
 
@@ -77,11 +67,7 @@ nerf开始转向splatting的一种中间形态
 
 #### ARF: Artistic Radiance Fields
 
-给定特定风格图片对3D物体进行风格迁移（对NerF基础上进行微调）：
-
-1、提出NNFM loss避免GRAM类loss只关注全局信息忽略局部高频信息；
-
-2、延迟渲染的技术，先关闭梯度计算整幅图片loss，之后再进行分块渲染
+给定特定风格图片对3D物体进行风格迁移（对NerF基础上进行微调）：提出NNFM loss避免GRAM类loss只关注全局信息忽略局部高频信息；延迟渲染的技术，先关闭梯度计算整幅图片loss，之后再进行分块渲染
 
 ### Large Scale
 
@@ -324,15 +310,7 @@ feedforward nerf工作（结合生成模型多视角）
 
 #### LRM: Large Reconstruction Model for Single Image to 3D
 
-单张图生成feed-forward以nerf的方式生成3D模型
-
-图像编码器用DINO，输出全部特征$\{h_i\}_{i=1}^n$而非仅[cls] token； 图像到三平面解码器：相机特征$c$由16维外参、焦距和主点组成，经相似变换归一化后，通过MLP映射为高维嵌入$\tilde{c}$ ；
-
-解码器中通过$\mathrm{ModLN}_{\mathrm{c}}(f_{j})=\mathrm{LN}(\boldsymbol{f}_j)\cdot(1+\gamma)+\beta$（$\gamma,\beta$来自$\tilde{c}$的MLP输出）调制特征 ；
-
-三平面$T$含$T_{XY}$、$T_{YZ}$、$T_{XZ}$，从可学习初始嵌入经交叉注意力、自注意力和MLP处理，最终上采样至64×64分辨率 ；3D点投影到三平面获取特征，经$MLP^{nerf}$解码为颜色和密度；
-
-训练时每物体选$V-1$个侧视图监督，loss为$V$个视图的MSE与LPIPS损失均值
+单张图生成feed-forward以nerf的方式生成3D模型：图像编码器用DINO，输出全部特征$\{h_i\}_{i=1}^n$而非仅[cls] token； 图像到三平面解码器：相机特征$c$由16维外参、焦距和主点组成，经相似变换归一化后，通过MLP映射为高维嵌入$\tilde{c}$ ；解码器中通过$\mathrm{ModLN}_{\mathrm{c}}(f_{j})=\mathrm{LN}(\boldsymbol{f}_j)\cdot(1+\gamma)+\beta$（$\gamma,\beta$来自$\tilde{c}$的MLP输出）调制特征 ；三平面$T$含$T_{XY}$、$T_{YZ}$、$T_{XZ}$，从可学习初始嵌入经交叉注意力、自注意力和MLP处理，最终上采样至64×64分辨率 ；3D点投影到三平面获取特征，经$MLP^{nerf}$解码为颜色和密度；训练时每物体选$V-1$个侧视图监督，loss为$V$个视图的MSE与LPIPS损失均值。
 
 #### InstantMesh: Efficient 3D Mesh Generation from a Single Image with Sparse-view Large Reconstruction Models
 
