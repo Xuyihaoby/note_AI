@@ -6,9 +6,10 @@
 
 #### NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis
 
-利用MLP对物体进行神经辐射场建模，输入几张照片后以及观察角度利用几层MLP结合体渲染公式就能重建出整个场景，nerf类工作一个很明显的缺点就是输出结果是隐式的，无法直接提取mesh。nerf在训练的时候会有两个模型一个coarse（沿着每条射线均匀采样 N个点），一个fine（根据粗网络输出的权重$w_i=T_i α_i$建一个新的分布，利用重要性采样再从这个分布中采样 N'个点）。
+利用MLP对物体进行神经辐射场建模，输入几张照片后以及观察角度利用几层MLP结合体渲染公式就能重建出整个场景，nerf类工作一个很明显的缺点就是输出结果是隐式的，无法直接提取mesh。nerf在训练的时候会有两个模型一个coarse（沿着每条射线均匀采样 N个点），一个fine（根据粗网络输出的权重 $w_i=T_i α_i$ 建一个新的分布，利用重要性采样再从这个分布中采样 N'个点）。
 
 在这里给出最重要的体渲染公式为：
+
 $$
 \hat{C}(\mathbf{r}) = \sum_{i=1}^{N} T_i \alpha_i \mathbf{c}_i, \quad \text{其中} \quad T_i = \exp\left( -\sum_{j=1}^{i-1} \sigma_j \delta_j \right), \quad \alpha_i = 1 - \exp(-\sigma_i \delta_i),\quad δ_i=t_{i+1}−t_i
 $$
