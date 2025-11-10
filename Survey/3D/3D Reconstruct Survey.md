@@ -103,9 +103,12 @@ nerf开始转向splatting的一种中间形态。
 #### EWA volume splatting
 
 首次在splating中引入显示的高斯核函数（gaussian splatting在非深度学习时代的前身），并利用高斯函数的封闭性进行计算，将世界坐标系转为相机坐标系，再将相机坐标系转为射线空间坐标系（使用泰勒展开进行线性化处理），得到2D平面与3D空间gaussian的协方差对应关系：
+
+
 $$
 \mathbf{\Sigma}_k = \mathbf{J} \mathbf{\Sigma}_k' \mathbf{J}^T = \mathbf{J} \mathbf{W} \mathbf{\Sigma}_k'' \mathbf{W}^T \mathbf{J}^T
 $$
+
 
 #### Surface splatting
 
