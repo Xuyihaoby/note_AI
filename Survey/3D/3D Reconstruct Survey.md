@@ -52,7 +52,7 @@ nerf开始转向splatting的一种中间形态。
 
 #### InstantNGP
 
-将空间划分为多个分辨率，高分辨率下使用hash映射的方式每个顶点的可学习向量（2维）映射到对应的内存中，由于hash表长度会比点的个数少，可能会存在一些隐式的冲突，但是由于本身空间中物体的分布就不是均匀的，所以这种隐式的冲突并不会影响到最终的效果
+将空间划分为多个分辨率，高分辨率下使用hash映射的方式每个顶点的可学习向量（2维）映射到对应的内存中，由于hash表长度会比点的个数少，可能会存在一些隐式的冲突，但是由于本身空间中物体的分布就不是均匀的，所以这种隐式的冲突并不会影响到最终的效果。
 
 #### UniVoxel: Fast Inverse Rendering by Unified Voxelization of Scene Representation
 
@@ -74,21 +74,19 @@ nerf开始转向splatting的一种中间形态。
 
 #### ARF: Artistic Radiance Fields
 
-给定特定风格图片对3D物体进行风格迁移（对NerF基础上进行微调）：提出NNFM loss避免GRAM类loss只关注全局信息忽略局部高频信息；延迟渲染的技术，先关闭梯度计算整幅图片loss，之后再进行分块渲染
+给定特定风格图片对3D物体进行风格迁移（对NerF基础上进行微调）：提出NNFM loss避免GRAM类loss只关注全局信息忽略局部高频信息；延迟渲染的技术，先关闭梯度计算整幅图片loss，之后再进行分块渲染。
 
 ### Large Scale
 
 #### BungeeNeRF: Progressive Neural Radiance Field for Extreme Multi-scale Scene Rendering
 
-通过逐级加模块的方式训练多尺度（不同高度），进行大规模场景重建
+通过逐级加模块的方式训练多尺度（不同高度），进行大规模场景重建。
 
 ### Mesh extraction
 
 #### Delicate Textured Mesh Recovery from NeRF via Adaptive Surface Refinement
 
-从nerf中提取mesh，分为两个部分：
-
-基于Instant-NGP训练一个NeRF模型，并将外观颜色解耦为漫反射（与视角无关）和高光（与视角相关）两部分；使用Marching Cubes从训练好的密度场中提取一个粗糙网格。通过可微渲染，联合优化网格顶点位置和已解耦的外观模型，以最小化2D渲染误差。根据面的渲染误差动态调整网格面密度：对高误差区域进行细分以增加细节，对低误差区域进行简化以提高效率。将优化后的漫反射和高光特征“烘焙”成标准纹理贴图，并利用集成到着色器中的小型MLP实现高光效果的实时渲染（mobile nerf中的技术）。
+从nerf中提取mesh，分为两个部分：基于Instant-NGP训练一个NeRF模型，并将外观颜色解耦为漫反射（与视角无关）和高光（与视角相关）两部分；使用Marching Cubes从训练好的密度场中提取一个粗糙网格。通过可微渲染，联合优化网格顶点位置和已解耦的外观模型，以最小化2D渲染误差。根据面的渲染误差动态调整网格面密度：对高误差区域进行细分以增加细节，对低误差区域进行简化以提高效率。将优化后的漫反射和高光特征“烘焙”成标准纹理贴图，并利用集成到着色器中的小型MLP实现高光效果的实时渲染（mobile nerf中的技术）。
 
 ### 4D
 
@@ -126,7 +124,7 @@ EWA splatting的进一步改进，或者是更接近3DGS的前身；图像渲染
 
 针对3DGS三个问题：3D高斯体使用的是体积辐射表示，但实际的表面通常是薄的，难以准确捕捉细节；3D高斯体本身无法原生支持表面法线；3D高斯体的光栅化过程中，不同的视角会导致不同的二维相交平面，这种多视角不一致性会影响重建效果。
 
-2DGS是将每个点及其周围的区域看成扁平的椭圆盘，中点表示为$p_k$ ,两个方向的切向量$t_{u}, t_{v}$ ,尺度向量为$S = (s_u, s_v)$用于控制协方差。首先由两个相互正交的切向量 $t_u, t_v$ 构造法线 $t_w = t_u \times t_v$，进而得到旋转矩阵 $R=[t_u, t_v, t_w]$，并结合尺度矩阵 $S=\text{diag}(s_u, s_v, 0)$，构建从局部 $uv$ 平面到三维空间的齐次变换：
+2DGS是将每个点及其周围的区域看成扁平的椭圆盘，中点表示为 $p_k$  ,两个方向的切向量 $t_{u}, t_{v}$ ,尺度向量为 $S = (s_u, s_v)$ 用于控制协方差。首先由两个相互正交的切向量 $t_u, t_v$ 构造法线 $t_w = t_u \times t_v$，进而得到旋转矩阵 $R=[t_u, t_v, t_w]$，并结合尺度矩阵 $S=\text{diag}(s_u, s_v, 0)$ ，构建从局部 $uv$ 平面到三维空间的齐次变换：
 
 $$
 P(u, v) = p_k + s_u t_u u + s_v t_v v
@@ -147,6 +145,7 @@ $$
 $$
 
 将 $P(u,v)$ 投影到屏幕坐标系 $\mathbf{x}=(x,y,z,1)^\top$ 得：
+
 $$
 \mathbf{x} = W P(u,v) = W H (u,v,1,1)^\top.
 $$
@@ -166,7 +165,9 @@ $$
  \max\{\mathcal{G}(\mathbf{u}(\mathbf{x})),
  \mathcal{G}\bigl((\mathbf{x}-\mathbf{c})/\sigma\bigr)\}
 $$
+
 颜色合成仍采用前向 $\alpha$-混合：
+
 $$
 \mathbf{c}(\mathbf{x}) =
  \sum_i c_i \alpha_i \hat{\mathcal{G}}_i(\mathbf{u}(\mathbf{x}))
@@ -181,14 +182,15 @@ $$
 
 核心为在进行高斯核采样的时候限制其频率，使其满足奈奎斯特定理。
 
-结合图像分辨率、相机焦距（\( f \)）与场景深度（\( d \)），世界空间采样间隔为 \( \hat{f} = \frac{d}{f} \)，采样频率为其倒数。
+结合图像分辨率、相机焦距（ $ f $ ）与场景深度（ $ d $ ），世界空间采样间隔为 $ \hat{f} = \frac{d}{f} $，采样频率为其倒数。
 
-以 3D 高斯 \(p_k\) 中心近似深度（忽略遮挡），结合多相机视野可见性（指示函数 \( 1_n(p_k) \)），确定 3D 高斯 \( k \) 的最大采样率：
+以 3D 高斯 \(p_k\) 中心近似深度（忽略遮挡），结合多相机视野可见性（指示函数 $ 1_n(p_k) $ ），确定 3D 高斯 $ k $ 的最大采样率：
+
 $$
 v_k = \max \left( \{ 1_n(p_k) \cdot \frac{f_n}{d_n} \}_{n=1}^{N} \right)
 $$
 
-（\( N \) 为图像总数，\( f_n \)、\( d_n \) 为第 \( n \) 个相机参数）。
+（ $ N$ 为图像总数，$ f_n $、$ d_n $ 为第 $ n $ 个相机参数）。
 
 基于此频率，对每个3D高斯进行低通滤波，进行3D平滑，过滤高频3D高斯表示。两个高斯卷积等于协方差之和：
 
@@ -196,14 +198,15 @@ $$
 \mathcal{G}_k(x)_{\text{reg}} = \sqrt{\frac{|\Sigma_k|}{\left|\Sigma_k + \frac{s}{v_k} I\right|}} \ e^{-\frac{1}{2}(x - \mu_k)^T \left(\Sigma_k + \frac{s}{v_k} I\right)^{-1}(x - \mu_k)}
 $$
 
-（\( s \) 为尺度超参，\( \Sigma_k \) 为 3D 高斯协方差矩阵，\( \mu_k \) 为高斯中心位置）。
+（ $ s $  为尺度超参，$ \Sigma_k $ 为 3D 高斯协方差矩阵，$ \mu_k $ 为高斯中心位置）。
 
 颜色的计算为抗混叠采用区域积分，通过 2D 高斯核实现：
+
 $$
 \mathcal{G}_k^{2D}(x)_{\text{min}} = \sqrt{\frac{|\Sigma_k^{2D}|}{\left|\Sigma_k^{2D} + sI\right|}} \ e^{-\frac{1}{2}(x - \mu_k^{2D})^T \left(\Sigma_k^{2D} + sI\right)^{-1}(x - \mu_k^{2D})}
 $$
 
-（\( \Sigma_k^{2D} \) 为投影后 2D 协方差矩阵，\( \mu_k^{2D} \) 为投影后的 2D 中心位置）
+（ $ \Sigma_k^{2D} $  为投影后 2D 协方差矩阵，$ \mu_k^{2D} $ 为投影后的 2D 中心位置）
 
 #### Sort-free Gaussian Splatting via Weighted Sum Rendering
 
@@ -958,7 +961,7 @@ PoseDiffusion通过扩散模型实现扩散辅助光束平差（Diffusion-aided 
 
 ## Matching
 
-### Feature
+### Geometric
 
 #### GIM: Learning Generalizable Image Matcher From Internet Videos
 
