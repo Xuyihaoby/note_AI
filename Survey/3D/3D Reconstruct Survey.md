@@ -251,9 +251,11 @@ Scaffold-GS 提出了一种基于锚点的分层、区域感知 3D 场景表示�
 相较于第一代的工作，这一代是基于2DGS进行改进，引入depth anything v2进行额外的loss监督；在空旷或弱纹理区域，2D高斯倾向于坍缩成一个点，导致其协方差矩阵被用于抗锯齿的低通滤波器所取代。使得这些高斯无法通过正常路径学习几何，梯度持续累积引发高斯数量的失控性增长直至显存耗尽。在执行分裂操作前，检查高斯的长宽比。当其低于阈值时（表明高斯已过度拉长或坍缩），禁止对其进行分裂。
 
 训练初期重建效果差，传统的光度损失对场景结构不敏感，难以提供可靠的优化指导。引入了以结构相似性损失的梯度为主导的密度自适应标准：
+
 $$
 \nabla_{densify}=\max\left(\omega\times\frac{|\nabla\mathcal{L}|_{avg}}{|\nabla\mathcal{L}_{\mathrm{SSIM}}|_{avg}},1\right)\times\nabla\mathcal{L}_{\mathrm{SSIM}}
 $$
+
 通过比较平均梯度幅度，动态放大SSIM损失的作用，使其在密度自适应中占据主导地位。
 
 除此之外，由于不像第一代有后处理等剪枝操作以及LOD，所以作者在每个block并行的时候计算每个Gaussian的贡献程度。贡献度低于阈值时会被自动排除。
@@ -330,7 +332,7 @@ feedforward nerf工作（结合生成模型多视角）
 
 #### LRM: Large Reconstruction Model for Single Image to 3D
 
-单张图生成feed-forward以nerf的方式生成3D模型：图像编码器用DINO，输出全部特征$\{h_i\}_{i=1}^n$而非仅[cls] token； 图像到三平面解码器：相机特征$c$由16维外参、焦距和主点组成，经相似变换归一化后，通过MLP映射为高维嵌入$\tilde{c}$ ；解码器中通过$\mathrm{ModLN}_{\mathrm{c}}(f_{j})=\mathrm{LN}(\boldsymbol{f}_j)\cdot(1+\gamma)+\beta$（$\gamma,\beta$来自$\tilde{c}$的MLP输出）调制特征 ；三平面$T$含$T_{XY}$、$T_{YZ}$、$T_{XZ}$，从可学习初始嵌入经交叉注意力、自注意力和MLP处理，最终上采样至64×64分辨率 ；3D点投影到三平面获取特征，经$MLP^{nerf}$解码为颜色和密度；训练时每物体选$V-1$个侧视图监督，loss为$V$个视图的MSE与LPIPS损失均值。
+单张图生成feed-forward以nerf的方式生成3D模型：图像编码器用DINO，输出全部特征$\{h_i\}_{i=1}^n$而非仅[cls] token； 图像到三平面解码器：相机特征$c$由16维外参、焦距和主点组成，经相似变换归一化后，通过MLP映射为高维嵌入$\tilde{c}$ ；解码器中通过 $\mathrm{ModLN}_{\mathrm{c}}(f_{j})=\mathrm{LN}(\boldsymbol{f}_j)\cdot(1+\gamma)+\beta$ （ $\gamma,\beta$ 来自 $\tilde{c}$ 的MLP输出）调制特征 ；三平面 $T$ 含 $T_{XY}$ 、$T_{YZ}$ 、 $T_{XZ}$ ，从可学习初始嵌入经交叉注意力、自注意力和MLP处理，最终上采样至64×64分辨率 ；3D点投影到三平面获取特征，经 $MLP^{nerf}$ 解码为颜色和密度；训练时每物体选 $V-1$ 个侧视图监督，loss为 $V$ 个视图的MSE与LPIPS损失均值。
 
 #### InstantMesh: Efficient 3D Mesh Generation from a Single Image with Sparse-view Large Reconstruction Models
 
@@ -346,11 +348,11 @@ feedforward类单张图片生成3D mesh的方法（结合生成模型多视角�
 
 该feedforward 2D高斯splatting方法仅需4张图即可重建360度有边界场景
 
-DINO提取图片特征，经Plücker射线方向的AdaLN注入，反投影得3D特征$\mathbf{V}_{\mathrm{f}}$；利用可学习嵌入向量$\mathbf{V}_\mathrm{e}$学习先验  
+DINO提取图片特征，经Plücker射线方向的AdaLN注入，反投影得3D特征 $\mathbf{V}_{\mathrm{f}}$ ；利用可学习嵌入向量 $\mathbf{V}_\mathrm{e}$ 学习先验  
 
 基于前两者预测含K个2D高斯基元的体素的属性（如不透明度、切向量、缩放、球谐系数）被预测，其位置被约束在所属体素单元的局部邻域内。
 
-采用分组交叉注意力机制对嵌入特征体素 $V_e$ 进行处理，并通过3D转置卷积进行上采样，最终输出$\mathrm{V}_{\mathcal{G}}$ 
+采用分组交叉注意力机制对嵌入特征体素 $V_e$ 进行处理，并通过3D转置卷积进行上采样，最终输出 $\mathrm{V}_{\mathcal{G}}$ 。
 
 将高斯基元投影回由粗解码得到的RGB、深度等特征图中，通过交叉注意力和MLP，**计算球谐系数的残差**，并与粗解码结果相加，从而恢复丰富的纹理细节。此过程还引入了**位移特征**以实现遮挡感知。
 
@@ -404,9 +406,9 @@ feedforward类nerf重建工作，整合了可微的mesh提取和渲染，能够�
 
 feed-forward类nerf稀疏视图3D重建工作，作者出发点在于MVS与NVS是有区别的。MVS只是利用reference img进行深度估计，而NVS是需要在新的视角下进行重建。本文认为应该通过从ref img中进行采样并且直接在目标视角下进行重建。
 
-特征提取：输入多张参考图像，通过6层CNN进行8倍下采样；使用Unimatch Transformer进一步提取特征，得到多视图特征 \(\{F_k\}_{k=1}^K\)。
+特征提取：输入多张参考图像，通过6层CNN进行8倍下采样；使用Unimatch Transformer进一步提取特征，得到多视图特征 $\{F_k\}_{k=1}^K$ 。
 
-在目标视角建立体素（Volume），并将体素点映射回参考视图。为避免下采样信息丢失，以映射点为中心进行9×9窗口的颜色采样 \(\{\tilde{c}_k^w\}\)。进行特征匹配，计算多视图特征间的余弦相似度 \(\hat{s} = w_{ij} \sum \cos(f_i, f_j)\)，并通过可学习权重 \(w_{ij}\)加权。使用MLP学习权重，对颜色 \(\hat{c}\) 和特征 \(\hat{f}\) 进行加权融合，MLP输入包括采样特征及视角方向差异。拼接相似度、颜色和特征，通过线性层生成目标体素 \(\boldsymbol{z}\)。使用分解的3D CNN（2D+1D卷积）解码体素，输出密度与颜色（4通道）。采用Coarse-Fine分层采样提升重建效率与质量。
+在目标视角建立体素（Volume），并将体素点映射回参考视图。为避免下采样信息丢失，以映射点为中心进行9×9窗口的颜色采样 $\{\tilde{c}_k^w\}$ 。进行特征匹配，计算多视图特征间的余弦相似度 $\hat{s} = w_{ij} \sum \cos(f_i, f_j)$ ，并通过可学习权重 $w_{ij}$ 加权。使用MLP学习权重，对颜色 $\hat{c}$ 和特征 $\hat{f}$ 进行加权融合，MLP输入包括采样特征及视角方向差异。拼接相似度、颜色和特征，通过线性层生成目标体素 $\boldsymbol{z}$ 。使用分解的3D CNN（2D+1D卷积）解码体素，输出密度与颜色（4通道）。采用Coarse-Fine分层采样提升重建效率与质量。
 
 #### MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images
 
@@ -415,9 +417,11 @@ feed-forward类nerf稀疏视图3D重建工作，作者出发点在于MVS与NVS�
 输入多视图图像和对应相机参数，直接输出3D高斯元参数（均值、不透明度、协方差、颜色）。多视角特征提取与交互：使用浅层ResNet提取4倍下采样的图像特征；通过Swin Transformer进行自注意力和跨视角注意力交互
 
 构建每个视图的**cost volume**：使用逆深度采样D个深度假设，将特征投影到其他视图并计算匹配代价：
-\[
+
+$$
 \mathbf{C}_{d_m}^i = \frac{\mathbf{F}^i \cdot \mathbf{F}_{d_m}^{j \rightarrow i}}{\sqrt{C}}
-\]
+$$
+
 得到初始cost volume：\(\mathbf{C}^i \in \mathbb{R}^{\frac{H}{4} \times \frac{W}{4} \times D}\)，结合feat使用U-Net（含跨注意力）预测残差，得到优化后的cost volume
 
 高斯参数预测：均值，通过逆投影将深度图映射回3D空间；不透明度：由cost volume的匹配；协方差与颜色：将图像、cost volume和特征拼接后，通过两层卷积预测 
@@ -426,9 +430,9 @@ feed-forward类nerf稀疏视图3D重建工作，作者出发点在于MVS与NVS�
 
 （这篇工作接续MVSSplat）feed-forward类重建工作，使用极其稀疏的观察（例如少于 5 张图像）渲染宽范围甚至 360° 视图；针对稀疏输入下大场景重建易产生噪声伪影的问题，引入生成模块进行去噪，
 
-稀疏多视角重建：使用跨视角Transformer编码器提取并融合多视图特征 $\mathcal{F}=\{\boldsymbol{F}^i\}_{i=1}^N$；将深度均匀划分为 $L$ 段 $\mathcal{D}=\{D_m\}_{m=1}^L$，通过相机位姿映射特征：$\boldsymbol{F}_{D_m}^{j\to i}=\mathcal{W}(\boldsymbol{F}^j,\boldsymbol{P}^i,\boldsymbol{P}^j,D_m)$；构建cost volume：$\boldsymbol{C}_{D_m}^{i}=\frac{\boldsymbol{F}_{D_m}^{j\to i}\cdot\boldsymbol{F}^{i}}{\sqrt{C}}$，沿深度维度聚合后通过softmax得到深度估计 $ d $。
+稀疏多视角重建：使用跨视角Transformer编码器提取并融合多视图特征 $\mathcal{F}=\{\boldsymbol{F}^i\}_{i=1}^N$ ；将深度均匀划分为 $L$ 段 $\mathcal{D}=\{D_m\}_{m=1}^L$ ，通过相机位姿映射特征： $\boldsymbol{F}_{D_m}^{j\to i}=\mathcal{W}(\boldsymbol{F}^j,\boldsymbol{P}^i,\boldsymbol{P}^j,D_m)$ ；构建cost volume： $\boldsymbol{C}_{D_m}^{i}=\frac{\boldsymbol{F}_{D_m}^{j\to i}\cdot\boldsymbol{F}^{i}}{\sqrt{C}}$ ，沿深度维度聚合后通过softmax得到深度估计 $ d $。
 
-预测高斯参数：均值 $\mu=\mathrm{K}^{-1}\boldsymbol{u}d+\Delta$（含深度和偏移）、不透明度、协方差和颜色，并额外输出特征用于条件生成。
+预测高斯参数：均值  $\mu=\mathrm{K}^{-1}\boldsymbol{u}d+\Delta$ （含深度和偏移）、不透明度、协方差和颜色，并额外输出特征用于条件生成。
 
 生成去噪模块 ：采用SVD（Stable Video Diffusion）模型，以稀疏视图的CLIP全局平均特征为条件，对高斯特征进行增强。生成图像后通过直方图匹配调整颜色饱和度。
 
@@ -438,13 +442,14 @@ feed-forward类nerf稀疏视图3D重建工作，作者出发点在于MVS与NVS�
 
 利用MVSplat的思想，使用CNN和Swin Transformer提取多视角特征，通过cost volume估计深度，结合相机位姿得到初始高斯位置 \(\mu\)，其余参数随机初始化。
 
-Cascade Gaussian Adaptor (CGA)：计算score map \(\mathcal{R} = \Psi(\mathcal{F})\)，用于评估区域重要性。引入超参网络 \(\mathcal{H}\)，输入每一阶段高斯相关的信息输出阈值 \(\tau_{high}^{(k)}, \tau_{low}^{(k)}\)，指导高斯的分裂与合并：高分区域分裂高斯（通过SplitNet生成新高斯）；低分区域合并高斯（缩放透明度与尺寸）。
+Cascade Gaussian Adaptor (CGA)：计算score map $\mathcal{R} = \Psi(\mathcal{F})$ ，用于评估区域重要性。引入超参网络 $\mathcal{H}$ ，输入每一阶段高斯相关的信息输出阈值 $\tau_{high}^{(k)}, \tau_{low}^{(k)}$ ，指导高斯的分裂与合并：高分区域分裂高斯（通过SplitNet生成新高斯）；低分区域合并高斯（缩放透明度与尺寸）。
 
 Iterative Gaussian Refinement (IGR)  ：对高斯进行微调，通过与多视角特征交互更新参数：
 
-\[
+$$
 \mathcal{Q}_b = \Phi_{ref}\left(\sum_{i=1}^{N} \alpha_i \cdot \text{DA}(\mathcal{Q}_{b-1}, F_i, P(\mu^{(b)}, C_i))\right)
-\]
+$$
+
 最终通过MLP输出优化后的高斯参数 \(\mathcal{G}_f\)。
 
 #### pixelNeRF: Neural Radiance Fields from One or Few Images
@@ -908,13 +913,14 @@ $$
 S_{k,k+1}^*=\arg\min_{S\in\text{Sim}(3)}\sum_i\rho(||p_k^i-Sp_{k+1}^i||_2)
 $$
 
-
  权重定义为 $w_i^{(t)}=c_i\cdot\frac{\rho'(r_i^{(t)})}{r_i^{(t)}}$，低置信点通过过滤与衰减降低影响。
 
 基于 DINOv2 的视觉位置识别模型提取全局图像描述子，通过相似度检索与非极大值抑制获得高置信度回环候选 $(I_i,I_j)$。随后构建“回环中心块”生成稳健的桥接点云，并计算回环变换：
+
 $$
 S_{ji}=S_{j,\text{loop}}\circ S_{i,\text{loop}}^{-1}
 $$
+
  最终，构建全局 Sim(3) 李群优化问题，联合最小化相邻块约束与回环约束。
 
 #### FastVGGT: Training-Free Acceleration of Visual Geometry Transformer
@@ -1049,7 +1055,8 @@ VGGSfM 的目标是通过端到端可微的点追踪网络实现结构从运动�
 $$
  f_{\theta}(\mathcal{I}) = (\mathcal{P}, X)
 $$
- 即网络 $f_\theta$ 接收图像集合 $\mathcal{I}$，直接输出相机参数 $\mathcal{P}$ 与场景点云 $X$，并通过最小化重投影与几何监督的损失 $\mathcal{L}$ 学习参数 $\theta$。VGGSfM 将传统 SfM 的四个关键阶段整合为全可微模块：
+
+ 即网络 $f_\theta$ 接收图像集合 $\mathcal{I}$，直接输出相机参数 $\mathcal{P}$ 与场景点云 $X$，并通过最小化重投影与几何监督的损失 $\mathcal{L}$ 学习参数 $\theta$ 。VGGSfM 将传统 SfM 的四个关键阶段整合为全可微模块：
 
 $$
 \begin{aligned}
@@ -1059,6 +1066,7 @@ $$
  (\mathcal{P}, X) &= \text{BA}(\mathcal{T}, \hat{\mathcal{P}}, \hat{X}) \quad &\text{(光束平差)}
  \end{aligned}
 $$
+
 点追踪器 $\mathbb{T}$：VGGSfM 引入前馈式多帧点追踪网络：输入多帧图像，直接输出跨帧一致的2D轨迹集合 $\mathcal{T}$。Cost-volume金字塔：在多尺度上构建点到特征的相关体，展平后形成令牌序列 $V \in \mathbb{R}^{N_T \times N_I \times C}$。Transformer跟踪：令牌经过多层自注意力Transformer，输出每个点在各帧的2D位置 $y_i^j$与可见性$v_i^j$。置信度预测：通过Aleatoric不确定性建模预测方差 $\sigma_i^j$，损失为高斯负对数似然。粗到细估计：先在全图上粗匹配，再在局部补丁中细化，获得亚像素精度。
 
 相机初始化器 $\mathfrak{T}_{\mathcal{P}}$：该模块利用深度Transformer在全局特征与轨迹特征之间执行交叉注意力，联合估计所有相机位姿。输入包括图像特征$\phi(I_i)$ 与轨迹描述符 $d^{\mathcal{P}}(y_i^j)$；将轨迹对输入8点算法估计初步相机作为几何先验，并嵌入Transformer更新多次以细化预测；使用批量8点算法近似RANSAC过滤噪声匹配，确保稳健性。
