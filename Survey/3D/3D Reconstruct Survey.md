@@ -302,9 +302,7 @@ $$
 
 #### DepthSplat: Connecting Gaussian Splatting and Depth
 
-将深度估计与 3D 高斯喷射 (GS) 结合，通过预训练单目深度特征构建多视图深度模型
-
-多视角特征匹配：视图经 ResNet34 初步提取特征，再经 SwinTransformer 进一步提取，结合相机位姿与最近两视图进行 cross attention 交互，得到特征图后按 MVSPlat 方式生成 cost volume。
+将深度估计与 3D 高斯喷射 (GS) 结合，通过预训练单目深度特征构建多视图深度模型。多视角特征匹配：视图经 ResNet34 初步提取特征，再经 SwinTransformer 进一步提取，结合相机位姿与最近两视图进行 cross attention 交互，得到特征图后按 MVSPlat 方式生成 cost volume。
 
 单目特征提取：用 Depth Anything v2 提取深度特征（参与训练），经 resize 得到对应尺度特征。
 
@@ -314,9 +312,7 @@ $$
 
 feed-forward稀疏视图输入的GS工作；核心是 “像素对齐高斯” 设计：高斯位置由相机中心、射线方向和模型预测值共同确定，再逆映射转换为世界坐标系下的 3D 坐标。通过 sigmoid函数结合插值方式，将模型输出的尺度值约束在设定的最小和最大尺度范围内。
 
-架构：4 张输入图先与 Plücker 嵌入拼接，经步长为 16 的卷积压缩分辨率，再加入可学习的位置嵌入，得到固定形状的初始特征。把多视图的特征拉成一个序列，用自注意力机制实现不同视图间的信息交互。为解决分辨率压缩导致的高频信息丢失，先通过线性层扩大特征维度，再用 PixelShuffle 提升分辨率，最后结合窗口注意力与移位操作，对局部特征做进一步处理。
-
-损失函数为常规的L2损失作用在图像于不透明度mask上
+4 张输入图先与 Plücker 嵌入拼接，经步长为 16 的卷积压缩分辨率，再加入可学习的位置嵌入，得到固定形状的初始特征。把多视图的特征拉成一个序列，用自注意力机制实现不同视图间的信息交互。为解决分辨率压缩导致的高频信息丢失，先通过线性层扩大特征维度，再用 PixelShuffle 提升分辨率，最后结合窗口注意力与移位操作，对局部特征做进一步处理。损失函数为常规的L2损失作用在图像于不透明度mask上。
 
 #### GS-LRM: Large Reconstruction Model for 3D Gaussian Splatting
 
@@ -332,15 +328,11 @@ feedforward nerf工作（结合生成模型多视角）
 
 #### LRM: Large Reconstruction Model for Single Image to 3D
 
-单张图生成feed-forward以nerf的方式生成3D模型：图像编码器用DINO，输出全部特征$\{h_i\}_{i=1}^n$而非仅[cls] token； 图像到三平面解码器：相机特征$c$由16维外参、焦距和主点组成，经相似变换归一化后，通过MLP映射为高维嵌入$\tilde{c}$ ；解码器中通过 $\mathrm{ModLN}_{\mathrm{c}}(f_{j})=\mathrm{LN}(\boldsymbol{f}_j)\cdot(1+\gamma)+\beta$ （ $\gamma,\beta$ 来自 $\tilde{c}$ 的MLP输出）调制特征 ；三平面 $T$ 含 $T_{XY}$ 、$T_{YZ}$ 、 $T_{XZ}$ ，从可学习初始嵌入经交叉注意力、自注意力和MLP处理，最终上采样至64×64分辨率 ；3D点投影到三平面获取特征，经 $MLP^{nerf}$ 解码为颜色和密度；训练时每物体选 $V-1$ 个侧视图监督，loss为 $V$ 个视图的MSE与LPIPS损失均值。
+单张图生成feed-forward以nerf的方式生成3D模型：图像编码器用DINO，输出全部特征 $\{h_i\}_{i=1}^n$ 而非仅[cls] token； 图像到三平面解码器：相机特征$c$由16维外参、焦距和主点组成，经相似变换归一化后，通过MLP映射为高维嵌入 $\tilde{c}$ ；解码器中通过 $\mathrm{ModLN}_{\mathrm{c}}(f_{j})=\mathrm{LN}(\boldsymbol{f}_j)\cdot(1+\gamma)+\beta$ （ $\gamma,\beta$ 来自 $\tilde{c}$ 的MLP输出）调制特征 ；三平面 $T$ 含 $T_{XY}$ 、$T_{YZ}$ 、 $T_{XZ}$ ，从可学习初始嵌入经交叉注意力、自注意力和MLP处理，最终上采样至64×64分辨率 ；3D点投影到三平面获取特征，经 $MLP^{nerf}$ 解码为颜色和密度；训练时每物体选 $V-1$ 个侧视图监督，loss为 $V$ 个视图的MSE与LPIPS损失均值。
 
 #### InstantMesh: Efficient 3D Mesh Generation from a Single Image with Sparse-view Large Reconstruction Models
 
-feedforward类单张图片生成3D mesh的方法（结合生成模型多视角）
-
-1. 用zero123++生成多视角图，微调确保背景为白色；数据集基于Objaverse，筛选27万高质量物体，每物体取6视图输入、4视图监督 
-
-2. 核心采用两阶段训练（继承Instant3D）：用LRM预权重初始化，在triplane-NeRF上训练，ViT编码器加AdaLN相机调制，移除解码器中的源相机调制层，loss含图像MSE、LPIPS和掩模损失；切换为mesh表示，集成FlexiCubes从triplane提取网格，用密度MLP预测SDF，新增MLP预测变形和权重，loss在阶段一基础上增加深度L1、法线余弦及正则化损失 用mesh的
+feedforward类单张图片生成3D mesh的方法（结合生成模型多视角）；用zero123++生成多视角图，微调确保背景为白色；数据集基于Objaverse，筛选27万高质量物体，每物体取6视图输入、4视图监督；核心采用两阶段训练（继承Instant3D）：用LRM预权重初始化，在triplane-NeRF上训练，ViT编码器加AdaLN相机调制，移除解码器中的源相机调制层，loss含图像MSE、LPIPS和掩模损失；切换为mesh表示，集成FlexiCubes从triplane提取网格，用密度MLP预测SDF，新增MLP预测变形和权重，loss在阶段一基础上增加深度L1、法线余弦及正则化损失用mesh的。
 
    优势：光栅化高效，支持全分辨率监督，输出平滑且便于后续处理。为增强鲁棒性，对相机姿态随机旋转缩放，并在输入ViT前添加噪声。
 
