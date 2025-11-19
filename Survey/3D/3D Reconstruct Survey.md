@@ -401,7 +401,7 @@ feed-forward类nerf稀疏视图3D重建工作，作者出发点在于MVS与NVS�
 
 特征提取：输入多张参考图像，通过6层CNN进行8倍下采样；使用Unimatch Transformer进一步提取特征，得到多视图特征 $\{F_k\}_{k=1}^K$ 。
 
-在目标视角建立体素（Volume），并将体素点映射回参考视图。为避免下采样信息丢失，以映射点为中心进行9×9窗口的颜色采样 $\{\tilde{c}_k^w\}$ 。进行特征匹配，计算多视图特征间的余弦相似度 $\hat{s} = w_{ij} \sum \cos(f_i, f_j)$ ，并通过可学习权重 $w_{ij}$ 加权。使用MLP学习权重，对颜色 $\hat{c}$ 和特征 $\hat{f}$ 进行加权融合，MLP输入包括采样特征及视角方向差异。拼接相似度、颜色和特征，通过线性层生成目标体素 $\boldsymbol{z}$ 。使用分解的3D CNN（2D+1D卷积）解码体素，输出密度与颜色（4通道）。采用Coarse-Fine分层采样提升重建效率与质量。
+在目标视角建立体素（Volume），并将体素点映射回参考视图。为避免下采样信息丢失，以映射点为中心进行9×9窗口的颜色采样 $\{\tilde{c}_k^w\}$。进行特征匹配，计算多视图特征间的余弦相似度 $\hat{s} = w_{ij} \sum \cos(f_i, f_j)$ ，并通过可学习权重 $w_{ij}$ 加权。使用MLP学习权重，对颜色 $\hat{c}$ 和特征 $\hat{f}$ 进行加权融合，MLP输入包括采样特征及视角方向差异。拼接相似度、颜色和特征，通过线性层生成目标体素 $\boldsymbol{z}$ 。使用分解的3D CNN（2D+1D卷积）解码体素，输出密度与颜色（4通道）。采用Coarse-Fine分层采样提升重建效率与质量。
 
 #### MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images
 
@@ -423,7 +423,7 @@ $$
 
 （这篇工作接续MVSSplat）feed-forward类重建工作，使用极其稀疏的观察（例如少于 5 张图像）渲染宽范围甚至 360° 视图；针对稀疏输入下大场景重建易产生噪声伪影的问题，引入生成模块进行去噪，
 
-稀疏多视角重建：使用跨视角Transformer编码器提取并融合多视图特征 $ \mathcal{F}=\{\boldsymbol{F}^i\}_{i=1}^N $ ；将深度均匀划分为 $L$ 段 $\mathcal{D}=\{D_m\}_{m=1}^L$ ，通过相机位姿映射特征： $\boldsymbol{F}_{D_m}^{j\to i}=\mathcal{W}(\boldsymbol{F}^j,\boldsymbol{P}^i,\boldsymbol{P}^j,D_m)$ ；构建cost volume： $\boldsymbol{C}_{D_m}^{i}=\frac{\boldsymbol{F}_{D_m}^{j\to i}\cdot\boldsymbol{F}^{i}}{\sqrt{C}}$ ，沿深度维度聚合后通过softmax得到深度估计 $d$ 。
+稀疏多视角重建：使用跨视角Transformer编码器提取并融合多视图特征 $\mathcal{F}=\{\boldsymbol{F}^i\}_{i=1}^N$ ；将深度均匀划分为 $L$ 段 $\mathcal{D}=\{D_m\}_{m=1}^L$ ，通过相机位姿映射特征： $ \boldsymbol{F}_{D_m}^{j\to i}=\mathcal{W}(\boldsymbol{F}^j,\boldsymbol{P}^i,\boldsymbol{P}^j,D_m) $ ；构建cost volume： $\boldsymbol{C}_{D_m}^{i}=\frac{\boldsymbol{F}_{D_m}^{j\to i}\cdot\boldsymbol{F}^{i}}{\sqrt{C}}$ ，沿深度维度聚合后通过softmax得到深度估计 $d$ 。
 
 预测高斯参数：均值  $\mu=\mathrm{K}^{-1}\boldsymbol{u}d+\Delta$ （含深度和偏移）、不透明度、协方差和颜色，并额外输出特征用于条件生成。
 
