@@ -329,7 +329,7 @@ feedforward nerf工作（结合生成模型多视角）
 
 #### LRM: Large Reconstruction Model for Single Image to 3D
 
-单张图生成feed-forward以nerf的方式生成3D模型：图像编码器用DINO，输出全部特征 $\{h_i\}_{i=1}^n$ 而非仅[cls] token； 图像到三平面解码器：相机特征$c$由16维外参、焦距和主点组成，经相似变换归一化后，通过MLP映射为高维嵌入 $\tilde{c}$ ；解码器中通过 $\mathrm{ModLN}_{\mathrm{c}}(f_{j})=\mathrm{LN}(\boldsymbol{f}_j)\cdot(1+\gamma)+\beta$ （ $\gamma,\beta$ 来自 $\tilde{c}$ 的MLP输出）调制特征 ；三平面 $T$ 含 $T_{XY}$ 、$T_{YZ}$ 、 $T_{XZ}$ ，从可学习初始嵌入经交叉注意力、自注意力和MLP处理，最终上采样至64×64分辨率 ；3D点投影到三平面获取特征，经 $MLP^{nerf}$ 解码为颜色和密度；训练时每物体选 $V-1$ 个侧视图监督，loss为 $V$ 个视图的MSE与LPIPS损失均值。
+单张图生成feed-forward以nerf的方式生成3D模型：图像编码器用DINO，输出全部特征 $\{h_i\}_{i=1}^n$ 而非仅[cls] token；图像到三平面解码器：相机特征 $c$ 由16维外参、焦距和主点组成，经相似变换归一化后，通过MLP映射为高维嵌入 $\tilde{c}$ ；解码器中通过 $\mathrm{ModLN}_{\mathrm{c}}(f_{j})=\mathrm{LN}(\boldsymbol{f}_j)\cdot(1+\gamma)+\beta$ （ $\gamma,\beta$ 来自 $\tilde{c}$ 的MLP输出）调制特征 ；三平面 $T$ 含 $T_{XY}$ 、$T_{YZ}$ 、 $T_{XZ}$ ，从可学习初始嵌入经交叉注意力、自注意力和MLP处理，最终上采样至64×64分辨率 ；3D点投影到三平面获取特征，经 $MLP^{nerf}$ 解码为颜色和密度；训练时每物体选 $V-1$ 个侧视图监督，loss为 $V$ 个视图的MSE与LPIPS损失均值。
 
 #### InstantMesh: Efficient 3D Mesh Generation from a Single Image with Sparse-view Large Reconstruction Models
 
