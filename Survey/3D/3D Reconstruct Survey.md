@@ -191,7 +191,7 @@ $$
 v_k = \max \left( \{ 1_n(p_k) \cdot \frac{f_n}{d_n} \}_{n=1}^{N} \right)
 $$
 
-（ $N$ 为图像总数，$f_n$ 、 $d_n$ 为第 $n$ 个相机参数）。
+（ $N$ 为图像总数， $f_n$ 、 $d_n$ 为第 $n$ 个相机参数）。
 
 基于此频率，对每个3D高斯进行低通滤波，进行3D平滑，过滤高频3D高斯表示。两个高斯卷积等于协方差之和：
 
@@ -199,7 +199,7 @@ $$
 \mathcal{G}_k(x)_{\text{reg}} = \sqrt{\frac{|\Sigma_k|}{\left|\Sigma_k + \frac{s}{v_k} I\right|}} \ e^{-\frac{1}{2}(x - \mu_k)^T \left(\Sigma_k + \frac{s}{v_k} I\right)^{-1}(x - \mu_k)}
 $$
 
-（ $s$  为尺度超参，$\Sigma_k$ 为 3D 高斯协方差矩阵，$\mu_k$ 为高斯中心位置）。
+（ $s$  为尺度超参， $\Sigma_k$ 为 3D 高斯协方差矩阵， $\mu_k$ 为高斯中心位置）。
 
 颜色的计算为抗混叠采用区域积分，通过 2D 高斯核实现：
 
@@ -207,7 +207,7 @@ $$
 \mathcal{G}_k^{2D}(x)_{\text{min}} = \sqrt{\frac{|\Sigma_k^{2D}|}{\left|\Sigma_k^{2D} + sI\right|}} \ e^{-\frac{1}{2}(x - \mu_k^{2D})^T \left(\Sigma_k^{2D} + sI\right)^{-1}(x - \mu_k^{2D})}
 $$
 
-（ $ \Sigma_k^{2D} $  为投影后 2D 协方差矩阵，$\mu_k^{2D}$ 为投影后的 2D 中心位置）
+（ $\Sigma_k^{2D}$  为投影后 2D 协方差矩阵，$\mu_k^{2D}$ 为投影后的 2D 中心位置）
 
 #### Sort-free Gaussian Splatting via Weighted Sum Rendering
 
