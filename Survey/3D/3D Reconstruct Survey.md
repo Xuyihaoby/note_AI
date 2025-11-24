@@ -347,7 +347,7 @@ feedforward类单张图片生成3D mesh的方法（结合生成模型多视角�
 
 该feedforward 2D高斯splatting方法仅需4张图即可重建360度有边界场景
 
-DINO提取图片特征，经Plücker射线方向的AdaLN注入，反投影得3D特征 $\mathbf{V}_{\mathrm{f}}$ ；利用可学习嵌入向量 $\mathbf{V}_\mathrm{e}$ 学习先验  
+DINO提取图片特征，经Plücker射线方向的AdaLN注入，反投影得3D特征 $ \mathbf{V}_{\mathrm{f} }$ ；利用可学习嵌入向量 $ \mathbf{V}_\mathrm{e} $ 学习先验。
 
 基于前两者预测含K个2D高斯基元的体素的属性（如不透明度、切向量、缩放、球谐系数）被预测，其位置被约束在所属体素单元的局部邻域内。
 
