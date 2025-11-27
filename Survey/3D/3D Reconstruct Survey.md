@@ -421,7 +421,7 @@ $$
 \mathbf{C}_{d_m}^i = \frac{\mathbf{F}^i \cdot \mathbf{F}_{d_m}^{j \rightarrow i}}{\sqrt{C}}
 $$
 
-得到初始cost volume：$(\mathbf{C}^i \in \mathbb{R}^{\frac{H}{4} \times \frac{W}{4} \times D}$，结合feat使用U-Net（含跨注意力）预测残差，得到优化后的cost volume
+得到初始cost volume：$\mathbf{C}^i \in \mathbb{R}^{\frac{H}{4} \times \frac{W}{4} \times D}$，结合feat使用U-Net（含跨注意力）预测残差，得到优化后的cost volume
 
 高斯参数预测：均值，通过逆投影将深度图映射回3D空间；不透明度：由cost volume的匹配；协方差与颜色：将图像、cost volume和特征拼接后，通过两层卷积预测 
 
