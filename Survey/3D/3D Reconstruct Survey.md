@@ -421,7 +421,7 @@ $$
 \mathbf{C}_{d_m}^i = \frac{\mathbf{F}^i \cdot \mathbf{F}_{d_m}^{j \rightarrow i}}{\sqrt{C}}
 $$
 
-得到初始cost volume：\(\mathbf{C}^i \in \mathbb{R}^{\frac{H}{4} \times \frac{W}{4} \times D}\)，结合feat使用U-Net（含跨注意力）预测残差，得到优化后的cost volume
+得到初始cost volume：$(\mathbf{C}^i \in \mathbb{R}^{\frac{H}{4} \times \frac{W}{4} \times D}$，结合feat使用U-Net（含跨注意力）预测残差，得到优化后的cost volume
 
 高斯参数预测：均值，通过逆投影将深度图映射回3D空间；不透明度：由cost volume的匹配；协方差与颜色：将图像、cost volume和特征拼接后，通过两层卷积预测 
 
@@ -429,7 +429,7 @@ $$
 
 （这篇工作接续MVSSplat）feed-forward类重建工作，使用极其稀疏的观察（例如少于 5 张图像）渲染宽范围甚至 360° 视图；针对稀疏输入下大场景重建易产生噪声伪影的问题，引入生成模块进行去噪，
 
-稀疏多视角重建：使用跨视角Transformer编码器提取并融合多视图特征 $\mathcal{F}=\{\boldsymbol{F}^i\}_{i=1}^N$ ；将深度均匀划分为 $L$ 段 $\mathcal{D}=\{D_m\}_{m=1}^L$ ，通过相机位姿映射特征： $ \boldsymbol{F}_{D_m}^{j\to i}=\mathcal{W}(\boldsymbol{F}^j,\boldsymbol{P}^i,\boldsymbol{P}^j,D_m) $ ；构建cost volume： $\boldsymbol{C}_{D_m}^{i}=\frac{\boldsymbol{F}_{D_m}^{j\to i}\cdot\boldsymbol{F}^{i}}{\sqrt{C}}$ ，沿深度维度聚合后通过softmax得到深度估计 $d$ 。
+稀疏多视角重建：使用跨视角Transformer编码器提取并融合多视图特征 $\mathcal{F} = \{\boldsymbol{F}^i\}_{i=1}^N $ ；将深度均匀划分为 $L$ 段 $\mathcal{D}=\{D_m\}_{m=1}^L$ ，通过相机位姿映射特征： $ \boldsymbol{F}_{D_m}^{j\to i}=\mathcal{W}(\boldsymbol{F}^j,\boldsymbol{P}^i,\boldsymbol{P}^j,D_m) $ ；构建cost volume： $\boldsymbol{C}_{D_m}^{i}=\frac{\boldsymbol{F}_{D_m}^{j\to i}\cdot\boldsymbol{F}^{i}}{\sqrt{C}}$ ，沿深度维度聚合后通过softmax得到深度估计 $d$ 。
 
 预测高斯参数：均值  $\mu=\mathrm{K}^{-1}\boldsymbol{u}d+\Delta$ （含深度和偏移）、不透明度、协方差和颜色，并额外输出特征用于条件生成。
 
