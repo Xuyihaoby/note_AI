@@ -335,7 +335,7 @@ feedforward nerf工作（结合生成模型多视角）
 
 #### LRM: Large Reconstruction Model for Single Image to 3D
 
-单张图生成feed-forward以nerf的方式生成3D模型：图像编码器用DINO，输出全部特征 ${h_i}\_{i=1}^n$ 而非仅[cls] token；图像到三平面解码器：相机特征 $c$ 由16维外参、焦距和主点组成，经相似变换归一化后，通过MLP映射为高维嵌入 $\tilde{c}$ ；解码器中通过 $\mathrm{ModLN}\_{\mathrm{c}}(f\_{j})=\mathrm{LN}(\boldsymbol{f}\_j)\cdot(1+\gamma)+\beta$ （ $\gamma,\beta$ 来自 $\tilde{c}$ 的MLP输出）调制特征 ；三平面 $T$ 含 $T\_{XY}$ 、$T\_{YZ}$ 、 $T_{XZ}$ ，从可学习初始嵌入经交叉注意力、自注意力和MLP处理，最终上采样至64×64分辨率 ；3D点投影到三平面获取特征，经 $MLP^{nerf}$ 解码为颜色和密度；训练时每物体选 $V-1$ 个侧视图监督，loss为 $V$ 个视图的MSE与LPIPS损失均值。
+单张图生成feed-forward以nerf的方式生成3D模型：图像编码器用DINO，输出全部特征 ${h_i}\_{i=1}^n$ 而非仅[cls] token；图像到三平面解码器：相机特征 $c$ 由16维外参、焦距和主点组成，经相似变换归一化后，通过MLP映射为高维嵌入 $\tilde{c}$ ；解码器中通过 $\mathrm{ModLN}\_{\mathrm{c}}(f\_{j})=\mathrm{LN}(\boldsymbol{f}\_j)\cdot(1+\gamma)+\beta$ （ $\gamma,\beta$ 来自 $\tilde{c}$ 的MLP输出）调制特征 ；三平面 $T$ 含 $T\_{XY}$ 、 $T\_{YZ}$ 、 $T_{XZ}$ ，从可学习初始嵌入经交叉注意力、自注意力和MLP处理，最终上采样至64×64分辨率 ；3D点投影到三平面获取特征，经 $MLP^{nerf}$ 解码为颜色和密度；训练时每物体选 $V-1$ 个侧视图监督，loss为 $V$ 个视图的MSE与LPIPS损失均值。
 
 #### InstantMesh: Efficient 3D Mesh Generation from a Single Image with Sparse-view Large Reconstruction Models
 
@@ -347,7 +347,7 @@ feedforward类单张图片生成3D mesh的方法（结合生成模型多视角�
 
 该feedforward 2D高斯splatting方法仅需4张图即可重建360度有边界场景
 
-DINO提取图片特征，经Plücker射线方向的AdaLN注入，反投影得3D特征 $ \mathbf{V}_{\mathrm{f} }$ ；利用可学习嵌入向量 $ \mathbf{V}_\mathrm{e} $ 学习先验。
+DINO提取图片特征，经Plücker射线方向的AdaLN注入，反投影得3D特征 $ \mathbf{V}\_{\mathrm{f} }$ ；利用可学习嵌入向量 $ \mathbf{V}\_\mathrm{e} $ 学习先验。
 
 基于前两者预测含K个2D高斯基元的体素的属性（如不透明度、切向量、缩放、球谐系数）被预测，其位置被约束在所属体素单元的局部邻域内。
 
@@ -407,7 +407,7 @@ feed-forward类nerf稀疏视图3D重建工作，作者出发点在于MVS与NVS�
 
 特征提取：输入多张参考图像，通过6层CNN进行8倍下采样；使用Unimatch Transformer进一步提取特征，得到多视图特征 $\{F_k\}_{k=1}^K$ 。
 
-在目标视角建立体素（Volume），并将体素点映射回参考视图。为避免下采样信息丢失，以映射点为中心进行9×9窗口的颜色采样 $\{\tilde{c}_k^w\}$。进行特征匹配，计算多视图特征间的余弦相似度 $\hat{s} = w_{ij} \sum \cos(f_i, f_j)$ ，并通过可学习权重 $w_{ij}$ 加权。使用MLP学习权重，对颜色 $\hat{c}$ 和特征 $\hat{f}$ 进行加权融合，MLP输入包括采样特征及视角方向差异。拼接相似度、颜色和特征，通过线性层生成目标体素 $\boldsymbol{z}$ 。使用分解的3D CNN（2D+1D卷积）解码体素，输出密度与颜色（4通道）。采用Coarse-Fine分层采样提升重建效率与质量。
+在目标视角建立体素（Volume），并将体素点映射回参考视图。为避免下采样信息丢失，以映射点为中心进行9×9窗口的颜色采样 $\{\tilde{c}\_k^w\}$。进行特征匹配，计算多视图特征间的余弦相似度 $\hat{s} = w\_{ij} \sum \cos(f\_i, f\_j)$ ，并通过可学习权重 $w_{ij}$ 加权。使用MLP学习权重，对颜色 $\hat{c}$ 和特征 $\hat{f}$ 进行加权融合，MLP输入包括采样特征及视角方向差异。拼接相似度、颜色和特征，通过线性层生成目标体素 $\boldsymbol{z}$ 。使用分解的3D CNN（2D+1D卷积）解码体素，输出密度与颜色（4通道）。采用Coarse-Fine分层采样提升重建效率与质量。
 
 #### MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images
 
