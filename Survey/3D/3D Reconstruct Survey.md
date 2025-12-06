@@ -347,7 +347,7 @@ feedforward类单张图片生成3D mesh的方法（结合生成模型多视角�
 
 该feedforward 2D高斯splatting方法仅需4张图即可重建360度有边界场景
 
-DINO提取图片特征，经Plücker射线方向的AdaLN注入，反投影得3D特征 $ \mathbf{V}\_{\mathrm{f} }$ ；利用可学习嵌入向量 $ \mathbf{V}\_\mathrm{e} $ 学习先验。
+DINO提取图片特征，经Plücker射线方向的AdaLN注入，反投影得3D特征 $\mathbf{V}\_{\mathrm{f} }$ ；利用可学习嵌入向量 $ \mathbf{V}\_\mathrm{e} $ 学习先验。
 
 基于前两者预测含K个2D高斯基元的体素的属性（如不透明度、切向量、缩放、球谐系数）被预测，其位置被约束在所属体素单元的局部邻域内。
 
@@ -369,7 +369,7 @@ MSE+SSIM+正则化损失（含深度和法线路项）
 
 受VAE启发，提出了 “变分3D高斯分布”，不再直接预测确定的场景特征，而是为每个3D高斯预测一个语义特征的分布（均值和方差），从而显式地建模了三维空间中的不确定性。
 
-使用DINO提取图像特征，并通过Epipolar Transformer进行视图间特征交互。预测头不仅输出3D高斯的标准属性（位置、颜色等），还额外输出每个高斯的语义特征均值 $h_μ$和方差$ h_σ$，随后通过采样得到具体特征(也就是于)。
+使用DINO提取图像特征，并通过Epipolar Transformer进行视图间特征交互。预测头不仅输出3D高斯的标准属性（位置、颜色等），还额外输出每个高斯的语义特征均值 $h_μ$和方差$ h\_σ$，随后通过采样得到具体特征(也就是于)。
 
 将渲染出的特征图输入到预训练的LDM解码器中，利用其强大的生成先验来补全因视图稀疏而缺失的细节。为了处理渲染图像中的空白区域（透明度高的地方），将随机噪声与未覆盖区域的不透明度相乘后添加到特征中，即 $F=F^{ren}+\sqrt{1−O}⊙ϵ$，这为生成器提供了需要“填补”区域的明确信号。
 
@@ -429,7 +429,7 @@ $$
 
 （这篇工作接续MVSSplat）feed-forward类重建工作，使用极其稀疏的观察（例如少于 5 张图像）渲染宽范围甚至 360° 视图；针对稀疏输入下大场景重建易产生噪声伪影的问题，引入生成模块进行去噪，
 
-稀疏多视角重建：使用跨视角Transformer编码器提取并融合多视图特征 $\mathcal{F} = \{\boldsymbol{F}^i\}\_\{i=1\}^N $ ；将深度均匀划分为 $L$ 段 $\mathcal{D}=\{D\_m\}\_{m=1}^L$ ，通过相机位姿映射特征： $ \boldsymbol{F}\_{D\_m}^{j\to i}=\mathcal{W}(\boldsymbol{F}^j,\boldsymbol{P}^i,\boldsymbol{P}^j,D\_m) $ ；构建cost volume： $\boldsymbol{C}\_{D_m}^{i}=\frac{\boldsymbol{F}\_{D\_m}^{j\to i}\cdot\boldsymbol{F}^{i}}{\sqrt{C}}$ ，沿深度维度聚合后通过softmax得到深度估计 $d$ 。
+稀疏多视角重建：使用跨视角Transformer编码器提取并融合多视图特征 $\mathcal{F} = \{\boldsymbol{F}^i\}\_\{i=1\}^N $ ；将深度均匀划分为 $L$ 段 $\mathcal{D}=\{D_m\}_{m=1}^L$ ，通过相机位姿映射特征： $\boldsymbol{F}\_{D\_m}^{j\to i}=\mathcal{W}(\boldsymbol{F}^j,\boldsymbol{P}^i,\boldsymbol{P}^j,D\_m) $ ；构建cost volume： $\boldsymbol{C}\_{D_m}^{i}=\frac{\boldsymbol{F}\_{D\_m}^{j\to i}\cdot\boldsymbol{F}^{i}}{\sqrt{C}}$ ，沿深度维度聚合后通过softmax得到深度估计 $d$ 。
 
 预测高斯参数：均值  $\mu=\mathrm{K}^{-1}\boldsymbol{u}d+\Delta$ （含深度和偏移）、不透明度、协方差和颜色，并额外输出特征用于条件生成。
 
