@@ -449,7 +449,7 @@ $$
 \mathcal{Q}_b = \Phi_{ref}\left(\sum_{i=1}^{N} \alpha_i \cdot \text{DA}(\mathcal{Q}_{b-1}, F_i, P(\mu^{(b)}, C_i))\right)
 $$
 
-最终通过MLP输出优化后的高斯参数 \(\mathcal{G}_f\)。
+最终通过MLP输出优化后的高斯参数 $\mathcal{G}_f$。
 
 #### pixelNeRF: Neural Radiance Fields from One or Few Images
 
