@@ -979,6 +979,9 @@ PoseDiffusion通过扩散模型实现扩散辅助光束平差（Diffusion-aided 
 ## Matching
 
 ### Geometric
+#### DKM: Dense Kernelized Feature Matching for Geometry Estimation
+
+本文将稠密匹配建模为一个函数回归问题：在已知图像 B 中像素特征及其空间坐标嵌入的条件下，学习从图像 A 的特征到图像 B 空间位置的映射关系。具体而言，高斯过程用于刻画特征相似性与空间对应之间的全局一致约束，从而为图像 A 中每个像素预测其在图像 B 中对应位置的坐标嵌入。该嵌入并非表示 A 的自身坐标，而是编码其潜在匹配在图像 B 中的空间位置。随后，通过可学习的解码网络将嵌入表示转换为单峰的稠密 warp 与匹配置信度，并结合多尺度残差细化逐步提升匹配精度。与以图像 A 为参考坐标系的传统方法不同，该方法在匹配建模与细化阶段均以图像 B 作为空间参考，从而避免由反向 warping 引入的插值噪声，并增强对大形变场景的鲁棒性。
 
 #### GIM: Learning Generalizable Image Matcher From Internet Videos
 
